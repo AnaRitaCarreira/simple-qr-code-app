@@ -5,6 +5,11 @@
 --------------
 
 This repository aims to create a QR Code reader and creator that can be executed on different platforms (Windows, macOS, Linux, Android and iOS) without the need for internet connection or installation.
+Desirably, it should be POSIX compliant.
+
+**STATUS**
+------------
+Desktop version working with plain text.
 
 **Requirements**
 ------------
@@ -14,7 +19,15 @@ This repository aims to create a QR Code reader and creator that can be executed
 **Features**
 ------------
 
-* Create custom QR Codes
+* Create custom QR Codes - Check https://github.com/zxing/zxing/wiki/Barcode-Contents
+    * Plain text
+    * URL
+    * Geo Location
+    * Calendar data
+    * Email Address
+    * Phone number
+    * SMS
+    * Contact Data
 * Read existing QR Codes with camera
 
 **Getting Started**
