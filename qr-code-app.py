@@ -1,7 +1,7 @@
 import sys
 import cv2
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import qrcode
 
@@ -9,20 +9,32 @@ class QRCodeApp:
     def __init__(self, root):
         self.root = root
         self.root.title("QR Code Generator & Reader")
-        self.root.geometry("400x550")
+        self.root.geometry("450x650")
 
         self.label = tk.Label(root, text="QR Code Generator & Reader", font=("Arial", 14))
         self.label.pack(pady=10)
 
-        self.entry = tk.Entry(root, width=40)
-        self.entry.pack(pady=5)
+        self.type_var = tk.StringVar()
+        self.type_var.set("Plain Text")
+        self.type_menu = ttk.Combobox(root, textvariable=self.type_var, values=[
+            "Plain Text", "URL", "Email", "Phone", "SMS", "Geo Location",
+            "Calendar Event", "Contact", "Wi-Fi"
+        ], state="readonly")
+        self.type_menu.pack(pady=5)
+        self.type_menu.bind("<<ComboboxSelected>>", self.update_fields)
+
+        self.fields_frame = tk.Frame(root)
+        self.fields_frame.pack(pady=5)
+
+        self.entries = {}
+        self.update_fields()
 
         self.generate_button = tk.Button(root, text="Generate QR Code", command=self.generate_qr)
         self.generate_button.pack(pady=5)
 
         self.save_button = tk.Button(root, text="Save QR Code", command=self.save_qr)
         self.save_button.pack(pady=5)
-        self.save_button.pack_forget()  # Esconde o botão até o QR ser gerado
+        self.save_button.pack_forget()
 
         self.camera_button = tk.Button(root, text="Read QR Code from Camera", command=self.read_qr_from_camera)
         self.camera_button.pack(pady=5)
@@ -30,12 +42,61 @@ class QRCodeApp:
         self.qr_label = tk.Label(root)
         self.qr_label.pack(pady=10)
 
-        self.qr_image = None  # Para armazenar o QR Code gerado
+        self.qr_image = None
+
+    def update_fields(self, event=None):
+        for widget in self.fields_frame.winfo_children():
+            widget.destroy()
+        self.entries.clear()
+
+        field_sets = {
+            "Plain Text": ["Text"],
+            "URL": ["URL"],
+            "Email": ["Email"],
+            "Phone": ["Phone Number"],
+            "SMS": ["Phone Number", "Message"],
+            "Geo Location": ["Latitude", "Longitude"],
+            "Calendar Event": ["Title", "Start (YYYYMMDDTHHMMSS)", "End (YYYYMMDDTHHMMSS)"],
+            "Contact": ["Name", "Phone", "Email"],
+            "Wi-Fi": ["SSID", "Password", "Encryption (WPA/WEP/nopass)"]
+        }
+
+        for field in field_sets[self.type_var.get()]:
+            lbl = tk.Label(self.fields_frame, text=field)
+            lbl.pack()
+            ent = tk.Entry(self.fields_frame, width=40)
+            ent.pack(pady=2)
+            self.entries[field] = ent
+
+    def get_qr_data(self):
+        t = self.type_var.get()
+        e = self.entries
+        try:
+            if t == "Plain Text":
+                return e["Text"].get()
+            elif t == "URL":
+                return e["URL"].get()
+            elif t == "Email":
+                return f"mailto:{e['Email'].get()}"
+            elif t == "Phone":
+                return f"tel:{e['Phone Number'].get()}"
+            elif t == "SMS":
+                return f"SMSTO:{e['Phone Number'].get()}:{e['Message'].get()}"
+            elif t == "Geo Location":
+                return f"geo:{e['Latitude'].get()},{e['Longitude'].get()}"
+            elif t == "Calendar Event":
+                return f"BEGIN:VEVENT\nSUMMARY:{e['Title'].get()}\nDTSTART:{e['Start (YYYYMMDDTHHMMSS)'].get()}\nDTEND:{e['End (YYYYMMDDTHHMMSS)'].get()}\nEND:VEVENT"
+            elif t == "Contact":
+                return f"MECARD:N:{e['Name'].get()};TEL:{e['Phone'].get()};EMAIL:{e['Email'].get()};"
+            elif t == "Wi-Fi":
+                return f"WIFI:T:{e['Encryption (WPA/WEP/nopass)'].get()};S:{e['SSID'].get()};P:{e['Password'].get()};;"
+        except KeyError:
+            return ""
 
     def generate_qr(self):
-        data = self.entry.get()
+        data = self.get_qr_data()
         if not data:
-            messagebox.showerror("Error", "Please enter some text to generate a QR Code!")
+            messagebox.showerror("Error", "Please fill in all fields to generate a QR Code!")
             return
 
         qr = qrcode.QRCode(
@@ -48,13 +109,13 @@ class QRCodeApp:
         qr.make(fit=True)
         img = qr.make_image(fill="black", back_color="white")
 
-        self.qr_image = img  # Armazena a imagem gerada
+        self.qr_image = img
 
         img_tk = ImageTk.PhotoImage(img)
         self.qr_label.config(image=img_tk)
         self.qr_label.image = img_tk
 
-        self.save_button.pack(pady=5)  # Mostra o botão "Save QR Code"
+        self.save_button.pack(pady=5)
 
     def save_qr(self):
         if self.qr_image is None:
@@ -67,12 +128,11 @@ class QRCodeApp:
         )
 
         if not file_path:
-            return  # Usuário cancelou a ação
+            return
 
         self.qr_image.save(file_path)
         messagebox.showinfo("Success", f"QR Code saved as {file_path}")
 
-    
     def read_qr_from_camera(self):
         cap = cv2.VideoCapture(0)
         detector = cv2.QRCodeDetector()
@@ -97,7 +157,6 @@ class QRCodeApp:
 
         cap.release()
         cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
