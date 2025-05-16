@@ -67,3 +67,4 @@ If you'd like to contribute to this project, please follow these steps:
 -------------
 
 * Create executables for Linux and Mac
+* pyinstaller --onefile --windowed qr-code-app.py.py
