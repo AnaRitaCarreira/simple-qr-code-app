@@ -61,3 +61,9 @@ If you'd like to contribute to this project, please follow these steps:
 * Make the necessary changes.
 * Commit the changes to the repository.
 * Open a pull request for the changes to be reviewed and approved.
+
+
+**TO DO**
+-------------
+
+* Create executables for Linux and Mac
