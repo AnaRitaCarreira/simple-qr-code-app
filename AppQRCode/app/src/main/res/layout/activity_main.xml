@@ -41,6 +41,13 @@
         android:text="Ler QR com Câmera"
         android:layout_marginTop="8dp" />
 
+    <Button
+        android:id="@+id/scangalleryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ler QR Code da Galeria"
+        android:layout_marginTop="8dp" />
+
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"

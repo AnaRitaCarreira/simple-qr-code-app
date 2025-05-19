@@ -3,7 +3,8 @@
 
     <!-- Permissão para usar a câmera -->
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!-- Declara que a câmera é obrigatória -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
